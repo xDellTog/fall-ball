@@ -47,8 +47,8 @@ export default class Ball {
             this.direction.x = -this.direction.x;
         }
 
-        // if (rects.some(r => isCollision(r, rect))) {
-        //     this.direction.x = -this.direction.x;
-        // }
+        if (rects.some(r => isCollision(r, rect))) {
+            this.direction.y = -this.direction.y * FRICTION;
+        }
     }
 }
