@@ -2,7 +2,7 @@ import {isCollision} from "./utils.js";
 
 const VELOCITY = 0.01;
 const GRAVITY = 1;
-const FRICTION = 0.99;
+const FRICTION = 0.89;
 
 export default class Ball {
     constructor(ctx, x, y, dx, dy) {
@@ -30,7 +30,7 @@ export default class Ball {
         this.ctx.closePath();
     }
 
-    update(delta, rects) {
+    update(delta, rects = []) {
         this.draw();
 
         this.x += this.direction.x * this.velocity * delta;
