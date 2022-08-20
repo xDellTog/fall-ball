@@ -1,12 +1,15 @@
-import Screen from "./Screen.js";
-
 const INITIAL_VELOCITY = 0.02;
-const VELOCITY_INCREASE = 0.000001;
+const VELOCITY_INCREASE = 0.00000001;
+const GRAVITY = 1;
+const FRICTION = 0.99;
 
 export default class Ball {
-    constructor(el) {
+    constructor(el, x, y, dx, dy) {
         this.el = el;
-        this.reset();
+        this.x = x;
+        this.y = y;
+        this.direction = {x: dx, y: dy};
+        this.velocity = INITIAL_VELOCITY;
     }
 
     get x() {
@@ -29,29 +32,25 @@ export default class Ball {
         return this.el.getBoundingClientRect();
     }
 
-    reset() {
-        this.direction = {x: 1, y: 1};
-        this.velocity = INITIAL_VELOCITY;
-    }
-
     update(delta) {
         this.x += this.direction.x * this.velocity * delta;
         this.y += this.direction.y * this.velocity * delta;
-        this.velocity += VELOCITY_INCREASE * delta;
 
         const rect = this.rect();
+
+        if (rect.bottom > window.innerHeight) {
+            this.direction.y = -this.direction.y * FRICTION;
+        } else {
+            this.direction.y += GRAVITY;
+        }
+
         if ((rect.right >= window.innerWidth) || (rect.left <= 0)) {
-            this.setHue(randomNumberBetween(0, 360));
             this.direction.x *= -1;
         }
-        if ((rect.bottom >= window.innerHeight) || (rect.top <= 0)) {
-            this.setHue(randomNumberBetween(0, 360));
-            this.direction.y *= -1;
-        }
-    }
 
-    setHue(value) {
-        document.documentElement.style.setProperty('--hue', value);
+        // if ((rect.bottom >= window.innerHeight) || (rect.top <= 0)) {
+        //     this.direction.y *= -1;
+        // }
     }
 }
 
