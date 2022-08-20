@@ -1,31 +1,15 @@
 import Ball from "./Ball.js";
+import Canvas from "./Canvas.js";
+import {randomNumberBetween, start} from "./utils.js";
 
-const ball1 = new Ball(document.getElementById('ball1'), 50, 75, -1, 0);
-const ball2 = new Ball(document.getElementById('ball2'), 25, 50, 1, 0);
+const canvas = new Canvas(document.getElementById('canvas'));
+const ctx = canvas.el.getContext('2d');
+const ball1 = new Ball(ctx, (canvas.el.width / 3), canvas.el.height / 2, randomNumberBetween(-10, 10), 1);
+const ball2 = new Ball(ctx, (canvas.el.width / 3 * 2), canvas.el.height / 2, randomNumberBetween(-10, 10), 1);
 
-function start() {
-    let fps = 60;
-    let now;
-    let then = Date.now();
-    let interval = 1000 / fps;
-    let delta;
+start((delta) => {
+    ctx.clearRect(0, 0, canvas.el.width, canvas.el.height);
 
-    function update() {
-        requestAnimationFrame(update);
-
-        now = Date.now();
-        delta = now - then;
-
-        if (delta > interval) {
-            then = now - (delta % interval);
-
-            // DRAW HERE
-            ball1.update(delta);
-            ball2.update(delta);
-        }
-    }
-
-    update();
-}
-
-start();
+    ball1.update(delta, [ball2.rect()]);
+    ball2.update(delta, [ball1.rect()]);
+});
