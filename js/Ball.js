@@ -2,7 +2,7 @@ import {isCollision} from "./utils.js";
 
 const VELOCITY = 0.01;
 const GRAVITY = 1;
-const FRICTION = 0.89;
+const FRICTION = 0.59;
 
 export default class Ball {
     constructor(ctx, x, y, dx, dy) {
@@ -37,8 +37,11 @@ export default class Ball {
         this.y += this.direction.y * this.velocity * delta;
 
         const rect = this.rect();
-        if (rect.bottom > this.ctx.canvas.height) {
+        const isInGround = Math.round(rect.bottom - this.ctx.canvas.height);
+
+        if (isInGround >= 0) {
             this.direction.y = -this.direction.y * FRICTION;
+            this.y -= Math.round(isInGround);
         } else {
             this.direction.y += GRAVITY;
         }
