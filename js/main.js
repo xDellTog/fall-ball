@@ -1,102 +1,46 @@
-const RADIUS = 10;
+import Ball from "./Ball.js";
+import Wall from "./Wall.js";
+
+/**
+ * @var ctx
+ * @type HTMLCanvasElement
+ */
+const canvas = document.getElementById('canvas');
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+const ctx = canvas.getContext('2d');
+
+let ball = new Ball(ctx, window.innerWidth / 2, window.innerHeight / 2, 1, 1);
+const ground = new Wall(ctx, 0, (window.innerHeight - 20), 20, window.innerWidth);
+const leftWall = new Wall(ctx, 0, 0, window.innerHeight - 20, 20);
+const rightWall = new Wall(ctx, window.innerWidth - 20, 0, window.innerHeight - 20, 20);
+
+const sceneObjects = [
+    // ball,
+    ground,
+    leftWall,
+    rightWall,
+]
+
+window.addEventListener('mousemove', (ev) => {
+    const x = ev.clientX;
+    const y = ev.clientY;
+    ball = new Ball(ctx, x, y, 0, 0);
+})
 
 function start() {
-    let {
-        Engine,
-        Render,
-        Runner,
-        Bodies,
-        Composite
-    } = Matter;
+    requestAnimationFrame(start);
 
-    let engine = Engine.create();
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-    let render = Render.create({
-        element: document.body,
-        engine: engine,
-        options: {
-            height: window.innerHeight,
-            width: window.innerWidth,
-        }
+    // Draw
+    sceneObjects.forEach((obj) => {
+        obj.update(sceneObjects);
     });
 
-    window.addEventListener('resize', () => {
-        render.canvas.height = window.innerHeight;
-        render.canvas.width = window.innerWidth;
-    });
-
-    window.addEventListener('mousemove', (ev) => {
-        console.log({
-            x: ev.clientX,
-            y: ev.clientY,
-        });
-    });
-
-    let dots = [];
-    let rows = 12;
-    let cols = 8;
-
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (j % 2 !== 0) {
-                if ((i + 1) === rows) continue;
-                dots.push(Bodies.circle((window.innerWidth / (rows + 1) * (i + 1.5)), (window.innerHeight / (rows + 1) * (j + 1)), RADIUS, {
-                    isStatic: true,
-                    restitution: 1,
-                    friction: 0,
-                }));
-            } else {
-                dots.push(Bodies.circle((window.innerWidth / (rows + 1) * (i + 1)), (window.innerHeight / (rows + 1) * (j + 1)), RADIUS, {
-                    isStatic: true,
-                    restitution: 1,
-                    friction: 0,
-                }));
-            }
-        }
-    }
-    let ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight - (RADIUS / 2), window.innerWidth, RADIUS, {
-        isStatic: true
-    });
-    let wallL = Bodies.rectangle((RADIUS / 2), window.innerHeight / 2, RADIUS, window.innerHeight, {
-        isStatic: true
-    });
-    let wallR = Bodies.rectangle(window.innerWidth - (RADIUS / 2), window.innerHeight / 2, RADIUS, window.innerHeight, {
-        isStatic: true,
-    });
-
-    Composite.add(engine.world, [
-        // player,
-        ...dots,
-        wallL,
-        wallR,
-        ground,
-    ]);
-
-    Render.run(render);
-
-    let runner = Runner.create();
-
-    Runner.run(runner, engine);
-
-    window.addEventListener('mouseup', (ev) => {
-        console.log({
-            x: ev.clientX,
-            y: ev.clientY,
-        });
-        let x = ev.clientX;
-        let y = ev.clientY;
-        let player = Bodies.circle(x, y, RADIUS, {
-            restitution: 1,
-            friction: 0,
-            render: {
-                fillStyle: '#FFF',
-            },
-        });
-        Composite.add(engine.world, [
-            player,
-        ]);
-    });
+    ball.update(sceneObjects);
 }
-
 
 start();
