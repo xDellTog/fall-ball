@@ -25,18 +25,26 @@ export default class Ball {
     draw() {
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        this.ctx.fillStyle = 'red';
+        this.ctx.fillStyle = '#ff8888';
         this.ctx.fill();
         this.ctx.closePath();
     }
 
-    update() {
+    update(dots) {
         this.draw();
 
         this.x += this.dx * this.velocity;
         this.y += this.dy * this.velocity;
 
         const rect = this.rect();
+
+        dots.forEach((dot) => {
+            if (this.distance(this.x, this.y, dot.x, dot.y) <= (this.radius + dot.radius)) {
+                console.log('collision');
+                // this.dx = -this.dx;
+                this.dy = -this.dy;
+            }
+        });
 
         const inGround = Math.round(rect.bottom - window.innerHeight);
         if (inGround >= 0) {
@@ -49,5 +57,9 @@ export default class Ball {
         if ((rect.left <= 0) || (rect.right >= window.innerWidth)) {
             this.dx = -this.dx;
         }
+    }
+
+    distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
     }
 }
