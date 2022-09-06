@@ -18,7 +18,7 @@ let dots = [];
 let rows = 8;
 let cols = 6;
 
-const ball = new Ball(ctx, window.innerWidth / 2, 0, 5, 1, 10);
+const ball = new Ball(ctx, window.innerWidth / 2, 20, 2, 1, 10);
 
 for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {

@@ -1,6 +1,6 @@
-const VELOCITY = 0.3;
+const VELOCITY = 0.1;
 const GRAVITY = 1;
-const FRICTION = 0.79;
+const FRICTION = 0.59;
 
 export default class Ball {
     constructor(ctx, x, y, dx, dy, radius) {
@@ -39,10 +39,15 @@ export default class Ball {
         const rect = this.rect();
 
         dots.forEach((dot) => {
-            if (this.distance(this.x, this.y, dot.x, dot.y) <= (this.radius + dot.radius)) {
-                console.log('collision');
-                // this.dx = -this.dx;
-                this.dy = -this.dy;
+            const dy = dot.y - this.y;
+            const dx = dot.x - this.x;
+            const distance = this.distance(this.x, this.y, dot.x, dot.y);
+            if (distance <= (this.radius + dot.radius)) {
+                const nx = dx / distance;
+                const ny = dy / distance;
+
+                this.dx = -(dot.x + nx * (this.radius + dot.radius)) * this.velocity * FRICTION;
+                this.dy = -(dot.y + ny * (this.radius + dot.radius)) * this.velocity * FRICTION;
             }
         });
 
@@ -60,6 +65,6 @@ export default class Ball {
     }
 
     distance(x1, y1, x2, y2) {
-        return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+        return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     }
 }
