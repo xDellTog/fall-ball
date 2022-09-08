@@ -1,3 +1,7 @@
+import * as Matter from "matter-js";
+import 'bootstrap/dist/js/bootstrap.bundle.js';
+import 'bootstrap/dist/css/bootstrap.css';
+
 const RADIUS = 10;
 
 function start() {
@@ -6,35 +10,32 @@ function start() {
         Render,
         Runner,
         Bodies,
-        Composite
+        Composite,
+        Body,
+        Events,
     } = Matter;
 
-    let engine = Engine.create();
+    let isStart = false;
+
+    let engine = Engine.create({
+        gravity: {
+            x: 0,
+            y: 0,
+        },
+    });
 
     let render = Render.create({
-        element: document.body,
         engine: engine,
+        element: document.getElementById('game'),
         options: {
             height: window.innerHeight,
             width: window.innerWidth,
         }
     });
 
-    window.addEventListener('resize', () => {
-        render.canvas.height = window.innerHeight;
-        render.canvas.width = window.innerWidth;
-    });
-
-    window.addEventListener('mousemove', (ev) => {
-        console.log({
-            x: ev.clientX,
-            y: ev.clientY,
-        });
-    });
-
     let dots = [];
-    let rows = 12;
-    let cols = 8;
+    let rows = 7;
+    let cols = 6;
 
     for (let i = 0; i < rows; i++) {
         for (let j = 0; j < cols; j++) {
@@ -54,6 +55,16 @@ function start() {
             }
         }
     }
+
+    let player = Bodies.circle(window.innerWidth / 2, 20, RADIUS, {
+        restitution: 1,
+        friction: Infinity,
+        frictionStatic: Infinity,
+        render: {
+            fillStyle: '#FFF',
+        },
+    });
+
     let ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight - (RADIUS / 2), window.innerWidth, RADIUS, {
         isStatic: true
     });
@@ -65,7 +76,7 @@ function start() {
     });
 
     Composite.add(engine.world, [
-        // player,
+        player,
         ...dots,
         wallL,
         wallR,
@@ -78,25 +89,29 @@ function start() {
 
     Runner.run(runner, engine);
 
-    window.addEventListener('mouseup', (ev) => {
-        console.log({
-            x: ev.clientX,
-            y: ev.clientY,
-        });
-        let x = ev.clientX;
-        let y = ev.clientY;
-        let player = Bodies.circle(x, y, RADIUS, {
-            restitution: 1,
-            friction: 0,
-            render: {
-                fillStyle: '#FFF',
-            },
-        });
-        Composite.add(engine.world, [
-            player,
-        ]);
+    window.addEventListener('keyup', (ev) => {
+        if (ev.key === ' ') {
+            engine.gravity.y = 1;
+            player.friction = 1;
+            player.frictionStatic = 0.5;
+            isStart = true;
+        }
+    });
+
+    let directionX = 1;
+    Events.on(engine, 'beforeUpdate', () => {
+        if (!isStart) {
+            Body.setVelocity(player, {
+                x: (directionX * 2),
+                y: 0
+            });
+
+            if (((directionX > 0) && ((player.position.x + player.circleRadius) >= wallR.bounds.min.x)) ||
+                ((directionX < 0) && ((player.position.x - player.circleRadius) <= wallL.bounds.max.x))) {
+                directionX *= -1;
+            }
+        }
     });
 }
-
 
 start();
